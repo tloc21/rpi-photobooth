@@ -40,6 +40,7 @@ class PhotoBoothForm(BoxLayout):
             gpout = subprocess.check_output("gphoto2 --capture-image-and-download --filename \
                                             /home/wtb/photobooth_images/temp_photo" + str(self.iteration_counter)
                                             + ".jpg", stderr=subprocess.STDOUT, shell=True)
+            print gpout
             if 'ERROR' not in gpout:
                 self.iteration_counter += 1
 
@@ -52,7 +53,7 @@ class PhotoBoothForm(BoxLayout):
                 self.iteration_counter = 1
                 self.timer_counter = 5
                 self.photo_popup.dismiss()
-                Clock.schedule_once(self.enable_start_button,5)
+                Clock.schedule_once(self.enable_start_button,10)
 
         self.timer_counter -= 1
 
