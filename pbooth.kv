@@ -1,0 +1,59 @@
+ScreenManager:
+    StartScreen:
+        id: start_screen
+    TakePhotoScreen:
+        id: photo_screen
+    PreviewScreen:
+        id: preview_screen
+
+<StartScreen>
+    id: start_screen
+    name:'start_screen'
+    BoxLayout:
+        orientation: 'vertical'
+        size: 800,640
+        Button:
+            id: start_button
+            font_size: 80
+            text: "Touch here to start"
+            on_press: root.button_click()
+
+<TakePhotoScreen>
+    id: photo-screen
+    name:'take_photo_screen'
+    GridLayout:
+        padding: '12dp'
+        cols: 1
+        size_hint: None, None
+        pos: root.pos
+        size: root.size
+        separator_color: 47, 167, 212, 1.
+        separator_height: 2
+
+
+        Label:
+            text: root.take_photo_title
+            size_hint_y: None
+            height: self.texture_size[1] + dp(16)
+            font_size: 50
+            text_align: 'center'
+            canvas:
+                Color:
+                    rgba: [47 / 255., 167 / 255., 212 / 255., 1.]
+                Rectangle:
+                    pos: self.x, self.y + 2 / 2.
+                    size: self.width, 2
+
+        Label:
+            font_size: 100
+            text:root.take_photo_label
+
+
+
+
+
+<PreviewScreen>
+    id: preview-screen
+    name:'preview_screen'
+    cols: 2
+    rows: 5
