@@ -50,10 +50,21 @@ ScreenManager:
 
 
 
-
-
 <PreviewScreen>
     id: preview-screen
     name:'preview_screen'
-    cols: 2
-    rows: 5
+    GridLayout:
+        cols: 2
+        rows: 5
+        Label:
+            text: 'image 1'
+        Label:
+            text: 'image 2'
+        Label:
+            text: 'image 3'
+        Label:
+            text: 'image 4'
+        Button:
+            text: 'Return to start'
+        Button:
+            text: 'Print'
