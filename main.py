@@ -57,8 +57,8 @@ class PreviewScreen(Screen):
     pass
 
 
-class PBoothApp(App):
+class PhotoBoothApp(App):
     pass
 
 if __name__ == '__main__':
-    PBoothApp().run()
+    PhotoBoothApp().run()
