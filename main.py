@@ -10,10 +10,15 @@ class PhotoBoothScreenManager(ScreenManager):
 
 class StartScreen(Screen):
     photo_screen = ObjectProperty(None)
-    def button_click(self):
+    def start_button_click(self):
         Clock.schedule_once(self.goto_photo_screen,-1)
-        #print self.parent.ids.photo_screen
         Clock.schedule_interval(self.parent.ids.photo_screen.take_photos,1)
+
+    def restart_button_click(self):
+        pass
+
+    def reboot_button_click(self):
+        pass
 
     def goto_photo_screen(self, *args):
         self.manager.current = 'take_photo_screen'
@@ -21,7 +26,7 @@ class StartScreen(Screen):
 
 class TakePhotoScreen(Screen):
 
-    take_photo_title = StringProperty('')
+    take_photo_title = StringProperty(' ')
     take_photo_label = StringProperty('GET READY!')
 
     def __init__(self, **kwargs):
@@ -29,12 +34,26 @@ class TakePhotoScreen(Screen):
         self.timer_counter = 5
         self.iteration_counter = 1
 
+    def on_pre_enter(self, *args):
+        super(TakePhotoScreen, self).on_pre_enter(*args)
+        self.timer_counter = 5
+        self.iteration_counter = 1
+        self.take_photo_label = 'GET READY'
+        self.take_photo_title = ' '
+
+    def goto_start_screen(self, *args):
+        self.manager.current = 'start_screen'
+
     def goto_preview_screen(self, *args):
         self.manager.current = 'preview_screen'
+
+    def show_camera_error(self, *args):
+        self.take_photo_label = 'Camera Not Found'
 
     def take_photos(self,*args):
         self.take_photo_title = 'Picture ' + str(self.iteration_counter ) + ' of 4'
         self.take_photo_label = str(self.timer_counter)
+
         if self.timer_counter == 0:
             self.take_photo_label = 'POSE'
             Clock.unschedule(self.take_photos)
@@ -47,6 +66,9 @@ class TakePhotoScreen(Screen):
             except subprocess.CalledProcessError as e:
                 print e.output
                 camera_error = True
+                Clock.schedule_once(self.show_camera_error)
+                Clock.schedule_once(self.goto_start_screen, 3)
+                return
 
             if not camera_error:
                 print gpout
