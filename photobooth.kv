@@ -58,7 +58,7 @@ ScreenManager:
                     size: self.width, 2
 
         Label:
-            font_size: 100
+            font_size: root.take_photo_label_size
             text:root.take_photo_label
 
 
@@ -69,10 +69,14 @@ ScreenManager:
     GridLayout:
         cols: 2
         rows: 5
+        Image:
+        Image:
         Label:
             text: 'image 1'
         Label:
             text: 'image 2'
+        Image:
+        Image:
         Label:
             text: 'image 3'
         Label:

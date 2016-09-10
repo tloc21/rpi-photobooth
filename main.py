@@ -1,24 +1,26 @@
+#!/usr/bin/env python
+
 from kivy.app import App
 from kivy.clock import Clock
-from kivy.properties import ObjectProperty, StringProperty
+from kivy.properties import StringProperty, NumericProperty
 from kivy.uix.screenmanager import ScreenManager, Screen
-import subprocess
+import os, sys, subprocess
 
 
 class PhotoBoothScreenManager(ScreenManager):
     pass
 
 class StartScreen(Screen):
-    photo_screen = ObjectProperty(None)
+
     def start_button_click(self):
         Clock.schedule_once(self.goto_photo_screen,-1)
         Clock.schedule_interval(self.parent.ids.photo_screen.take_photos,1)
 
     def restart_button_click(self):
-        pass
+        os.execv(__file__, sys.argv)
 
     def reboot_button_click(self):
-        pass
+        os.system('sudo reboot')
 
     def goto_photo_screen(self, *args):
         self.manager.current = 'take_photo_screen'
@@ -28,6 +30,7 @@ class TakePhotoScreen(Screen):
 
     take_photo_title = StringProperty(' ')
     take_photo_label = StringProperty('GET READY!')
+    take_photo_label_size = NumericProperty(100)
 
     def __init__(self, **kwargs):
         super(TakePhotoScreen,self).__init__(**kwargs)
@@ -38,8 +41,10 @@ class TakePhotoScreen(Screen):
         super(TakePhotoScreen, self).on_pre_enter(*args)
         self.timer_counter = 5
         self.iteration_counter = 1
+        self.take_photo_label_size = 100
         self.take_photo_label = 'GET READY'
         self.take_photo_title = ' '
+
 
     def goto_start_screen(self, *args):
         self.manager.current = 'start_screen'
@@ -48,7 +53,9 @@ class TakePhotoScreen(Screen):
         self.manager.current = 'preview_screen'
 
     def show_camera_error(self, *args):
+        self.take_photo_label_size = 65
         self.take_photo_label = 'Camera Not Found'
+
 
     def take_photos(self,*args):
         self.take_photo_title = 'Picture ' + str(self.iteration_counter ) + ' of 4'
