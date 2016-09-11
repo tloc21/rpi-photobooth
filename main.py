@@ -4,7 +4,7 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.properties import StringProperty, NumericProperty
 from kivy.uix.screenmanager import ScreenManager, Screen
-import os, sys, subprocess
+import os, sys, subprocess, multiprocessing, time, traceback
 
 
 class PhotoBoothScreenManager(ScreenManager):
@@ -17,7 +17,8 @@ class StartScreen(Screen):
         Clock.schedule_interval(self.parent.ids.photo_screen.take_photos,1)
 
     def restart_button_click(self):
-        os.execv(__file__, sys.argv)
+#        os.execv(__file__, sys.argv)
+        App.get_running_app().stop()
 
     def reboot_button_click(self):
         os.system('sudo reboot')
@@ -73,7 +74,7 @@ class TakePhotoScreen(Screen):
 
             try:
                 gpout = subprocess.check_output("sudo gphoto2 --capture-image-and-download --filename \
-                                            /home/wtb/photobooth_images/temp_photo" + str(self.iteration_counter)
+                                            /home/pi/photobooth_images/temp_photo" + str(self.iteration_counter)
                                                 + ".jpg --force-overwrite", stderr=subprocess.STDOUT, shell=True)
                 camera_error = False
             except subprocess.CalledProcessError as e:
@@ -129,5 +130,23 @@ class PreviewScreen(Screen):
 class PhotoBoothApp(App):
     pass
 
-if __name__ == '__main__':
+def run_things():
     PhotoBoothApp().run()
+
+def monitor(sleep_time):
+    while 1:
+        proc = multiprocessing.Process(target=run_things)
+        proc.start()
+        proc.join()
+        if proc.exitcode != 0:
+            print('something went wrong... terminating')
+            exit(proc.exitcode)
+
+if __name__ == '__main__':
+#    PhotoBoothApp().run()
+    try:
+        sleep_time = int(sys.argv[1])
+        monitor(sleep_time)
+    except(KeyError,ValueError):
+        print('usage: main.py sleeptime')
+        exit(1)
