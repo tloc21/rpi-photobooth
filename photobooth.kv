@@ -11,7 +11,7 @@ ScreenManager:
     name:'start_screen'
     BoxLayout:
         orientation: 'vertical'
-        size: 800,640
+        size: 800,400
         Button:
             id: start_button
             font_size: 80
@@ -19,17 +19,17 @@ ScreenManager:
             on_press: root.start_button_click()
         BoxLayout:
             orientation: 'horizontal'
-            size_hint_y: .125
+            size_hint_y: .2
             Button:
                 id: restart_button
                 size_hint_x: .5
                 text: 'Restart Me'
-                on_press: root.restart_button_click()
+                on_release: root.restart_button_click()
             Button:
                 id: reboot_button
                 text: 'Reboot'
                 size_hint_x: .5
-                on_press: root.reboot_button_click()
+                on_release: root.reboot_button_click()
 
 <TakePhotoScreen>
     id: photo-screen
