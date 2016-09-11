@@ -36,6 +36,7 @@ class TakePhotoScreen(Screen):
         super(TakePhotoScreen,self).__init__(**kwargs)
         self.timer_counter = 5
         self.iteration_counter = 1
+        self.photo_error = False
 
     def on_pre_enter(self, *args):
         super(TakePhotoScreen, self).on_pre_enter(*args)
@@ -52,6 +53,9 @@ class TakePhotoScreen(Screen):
     def goto_preview_screen(self, *args):
         self.manager.current = 'preview_screen'
 
+    def pose_label(self,  *args):
+        self.take_photo_label = 'POSE'
+
     def show_camera_error(self, *args):
         self.take_photo_label_size = 65
         self.take_photo_label = 'Camera Not Found'
@@ -59,16 +63,18 @@ class TakePhotoScreen(Screen):
 
     def take_photos(self,*args):
         self.take_photo_title = 'Picture ' + str(self.iteration_counter ) + ' of 4'
-        self.take_photo_label = str(self.timer_counter)
 
-        if self.timer_counter == 0:
+        if self.timer_counter > 0:
+            self.take_photo_label = str(self.timer_counter)
+        elif self.timer_counter == 0:
             self.take_photo_label = 'POSE'
+        else:
             Clock.unschedule(self.take_photos)
 
             try:
-                gpout = subprocess.check_output("gphoto2 --capture-image-and-download --filename \
+                gpout = subprocess.check_output("sudo gphoto2 --capture-image-and-download --filename \
                                             /home/wtb/photobooth_images/temp_photo" + str(self.iteration_counter)
-                                                + ".jpg", stderr=subprocess.STDOUT, shell=True)
+                                                + ".jpg --force-overwrite", stderr=subprocess.STDOUT, shell=True)
                 camera_error = False
             except subprocess.CalledProcessError as e:
                 print e.output
@@ -81,8 +87,16 @@ class TakePhotoScreen(Screen):
                 print gpout
 
                 if 'ERROR' in gpout:
-                    # TODO: Handle camera found but couldn't capture photo errors, reset self.iteration_counter
-                    return
+                    if self.photo_error == True:
+                        Clock.schedule_once(self.show_camera_error)
+                        Clock.schedule_once(self.goto_start_screen, 3)
+                        return
+                    else:
+                        self.timer_counter = 5
+                        Clock.schedule_interval(self.take_photos, 1)
+                        # TODO: Handle camera found but couldn't capture photo errors, reset self.iteration_counter
+                        self.photo_error = True
+                        return
             # reset timer, will be 3 seconds after finishing loop
             self.timer_counter = 4
 
@@ -98,7 +112,19 @@ class TakePhotoScreen(Screen):
         self.timer_counter -= 1
 
 class PreviewScreen(Screen):
-    pass
+
+    def on_pre_enter(self, *args):
+        super(PreviewScreen, self).on_pre_enter(*args)
+        self.ids.pic1.reload()
+        self.ids.pic2.reload()
+        self.ids.pic3.reload()
+        self.ids.pic4.reload()
+
+    def goto_start(self):
+        self.manager.current = 'start_screen'
+
+    def print_photos(self):
+        pass
 
 class PhotoBoothApp(App):
     pass

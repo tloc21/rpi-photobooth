@@ -64,24 +64,30 @@ ScreenManager:
 
 
 <PreviewScreen>
-    id: preview-screen
+    id: preview_screen
     name:'preview_screen'
     GridLayout:
         cols: 2
-        rows: 5
+        rows: 3
         Image:
+            id: pic1
+            source: '/home/wtb/photobooth_images/temp_photo1.jpg'
         Image:
-        Label:
-            text: 'image 1'
-        Label:
-            text: 'image 2'
+            id: pic2
+            source: '/home/wtb/photobooth_images/temp_photo2.jpg'
         Image:
+            id: pic3
+            source: '/home/wtb/photobooth_images/temp_photo3.jpg'
         Image:
-        Label:
-            text: 'image 3'
-        Label:
-            text: 'image 4'
+            id: pic4
+            source: '/home/wtb/photobooth_images/temp_photo4.jpg'
         Button:
+            size_hint_y: 0.2
             text: 'Return to start'
+            font_size: 30
+            on_press: root.goto_start()
         Button:
+            size_hint_y: 0.2
             text: 'Print'
+            font_size: 30
+            on_press: root.print_photos()
