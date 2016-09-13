@@ -60,7 +60,42 @@ class TakePhotoScreen(Screen):
     def show_camera_error(self, *args):
         self.take_photo_label_size = 65
         self.take_photo_label = 'Camera Not Found'
-
+		
+	def take_photo_countdown(self, *args):
+		if self.timer_counter > 0:
+			self.take_photo_label = str(self.timer_counter)
+			Clock.schedule_once(self.take_photo_countdown, 1)
+		elif self.timer_counter == 0:
+			self.take_photo_label = 'POSE'
+			self.snap_photo(self.photo_error)
+		self.timer_counter -= 1
+		
+	def take_four_photos(self, *args):
+		self.take_photo_title = 'Picture ' + str(self.iteration_counter ) + ' of 4'
+		self.take_photo_label = 'GET READY'
+		self.timer_counter = 3
+		Clock.schedule_once(self.take_photo_countdown)
+		if self.iteration_counter < 4:
+			self.iteration_counter += 1
+			Clock.schedule_once(self.take_four_photos,1)
+	
+	def snap_photo(self, photo_error):
+		try:
+            gpout = subprocess.check_output("sudo gphoto2 --capture-image-and-download --filename \
+                                            /home/pi/photobooth_images/temp_photo" + str(self.iteration_counter)
+                                            + ".jpg --force-overwrite", stderr=subprocess.STDOUT, shell=True)
+			if 'ERROR' in gpout and photo_error:
+				Clock.schedule_once(self.show_camera_error)
+				Clock.schedule_once(self.goto_start_screen, 3)
+			else:
+				self.timer_counter = 5
+				self.photo_error = True
+            return False
+        except subprocess.CalledProcessError as e:
+            print e.output
+            Clock.schedule_once(self.show_camera_error)
+            Clock.schedule_once(self.goto_start_screen, 3)
+            return True
 
     def take_photos(self,*args):
         self.take_photo_title = 'Picture ' + str(self.iteration_counter ) + ' of 4'
