@@ -36,6 +36,7 @@ class ErrorPopup(Popup):
         super(ErrorPopup, self).__init__(**kwargs)
         self.title = 'ERROR'
         self.title_align = 'center'
+        self.title_size = 30
         self.content = Label(text = 'Error Text', font_size = 100)
         self.dismiss_time = 3
 
@@ -95,21 +96,23 @@ class TakePhotoScreen(Screen):
                 self.camera_error = self.snap_photo()
                 self.iteration_counter += 1
                 self.timer_counter = 4
-                #TODO: Move this to snap photo error handling?
                 Clock.schedule_once(self.take_photo_countdown, 1)
             if self.iteration_counter > 4:
-                #Todo: Process photos
+                self.error_popup.title = 'PLEASE WAIT'
+                self.error_popup.content.text = 'PROCESSING'
+                self.error_popup.open()
                 self.process_photos()
         else:
             self.error_popup.content.text = 'CAMERA ERROR'
             self.error_popup.open()
             Clock.schedule_once(self.goto_start_screen, 3)
             self.camera_error = False
+            self.photo_error = False
 
     def snap_photo(self):
         try:
             gpout = subprocess.check_output("sudo gphoto2 --capture-image-and-download --filename \
-                                            /home/wtb/photobooth_images/temp_photo" + str(self.iteration_counter)
+                                            /home/pi/photobooth_images/temp_photo" + str(self.iteration_counter)
                                             + ".jpg --force-overwrite", stderr=subprocess.STDOUT, shell=True)
             print gpout
             if 'ERROR' in gpout and self.photo_error:
@@ -118,12 +121,11 @@ class TakePhotoScreen(Screen):
                 self.timer_counter = 5
                 self.iteration_counter -= 1
                 self.photo_error = True
-                #TODO: display photo error message
-                #Clock.schedule_once(self.take_photo_countdown, 1)
                 return False
             else:
-                return False
                 self.photo_error = False
+                return False
+
 
 
 
@@ -132,7 +134,7 @@ class TakePhotoScreen(Screen):
             return True
 
     def process_photos(self):
-        subprocess.call("sudo /home/wtb/Projects/rpi-photobooth/process_photos", shell=True)
+        subprocess.call("sudo /home/pi/Projects/rpi-photobooth/process_photos", shell=True)
         Clock.schedule_once(self.goto_preview_screen)
 
 
