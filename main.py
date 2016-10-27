@@ -101,7 +101,7 @@ class TakePhotoScreen(Screen):
                 self.error_popup.title = 'PLEASE WAIT'
                 self.error_popup.content.text = 'PROCESSING'
                 self.error_popup.open()
-                self.process_photos()
+                Clock.schedule_once(self.process_photos)
         else:
             self.error_popup.content.text = 'CAMERA ERROR'
             self.error_popup.open()
@@ -133,8 +133,8 @@ class TakePhotoScreen(Screen):
             print e.output
             return True
 
-    def process_photos(self):
-        subprocess.call("sudo /home/pi/Projects/rpi-photobooth/process_photos", shell=True)
+    def process_photos(self, *args):
+        subprocess.call("sudo /home/wtb/Projects/rpi-photobooth/process_photos", shell=True)
         Clock.schedule_once(self.goto_preview_screen)
 
 
