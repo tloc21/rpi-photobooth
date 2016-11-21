@@ -1,0 +1,7 @@
+#!/bin/bash
+
+sudo rm -f /home/pi/montage.jpg
+mogrify -resize 968x648 /home/pi/photobooth_images/*.jpg
+montage /home/pi/photobooth_images/*.jpg -tile 2x2 -geometry +10+10 /home/pi/photobooth_images/temp_montage.jpg
+montage /home/pi/photobooth_images/temp_montage.jpg /home/pi/text3336.png -tile 1x2 -geometry +5+5 /home/pi/montage.jpg
+rm -f /home/pi/photobooth_images/temp_montage.jpg
