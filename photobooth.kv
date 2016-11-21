@@ -3,8 +3,9 @@ ScreenManager:
         id: start_screen
     TakePhotoScreen:
         id: photo_screen
-    PreviewScreen:
+	PreviewScreen:
         id: preview_screen
+
 
 <StartScreen>
     id: start_screen
@@ -22,7 +23,6 @@ ScreenManager:
             size_hint_y: .2
             Button:
                 id: restart_button
-                size_hint_x: .5
                 font_size: 20
                 text: 'Restart'
                 on_release: root.restart_button_click()
@@ -30,8 +30,12 @@ ScreenManager:
                 id: reboot_button
                 font_size: 20
                 text: 'Reboot'
-                size_hint_x: .5
                 on_release: root.reboot_button_click()
+			Button:
+				id: preview_button
+				font_size:20
+				text: 'Preview'
+				on_release: root.preview_button_click()
 
 <TakePhotoScreen>
     id: photo-screen
@@ -69,18 +73,26 @@ ScreenManager:
     id: preview_screen
     name:'preview_screen'
     GridLayout:
-        cols: 1
+        cols: 2
         Image:
             id: pic1
-            source: '/home/pi/montage.jpg'
-        GridLayout:
-            cols: 2
-            size_hint_y: 0.2
-            Button:
-                text: 'Return to start'
-                font_size: 30
-                on_press: root.goto_start()
-            Button:
-                text: 'Print'
-                font_size: 30
-                on_press: root.print_photos()
+			source: '/home/pi/photobooth_images/temp_photo1.jpg'
+		Image:
+			id: pic2
+			source: '/home/pi/photobooth_images/temp_photo2.jpg'
+		Image:
+			id: pic3
+			source: '/home/pi/photobooth_images/temp_photo3.jpg'
+		Image:
+			id: pic4
+			source: '/home/pi/photobooth_images/temp_photo4.jpg'
+		Button:
+			size_hint_y: 0.30
+			text: 'Return to start'
+			font_size: 30
+			on_press: root.goto_start()
+		Button:
+			size_hint_y: 0.30
+			text: 'Print'
+			font_size: 30
+			on_press: root.print_photos()

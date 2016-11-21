@@ -29,6 +29,9 @@ class StartScreen(Screen):
 
     def goto_photo_screen(self, *args):
         self.manager.current = 'take_photo_screen'
+		
+    def preview_button_click(self, *args):
+        self.manager.current = 'preview_screen'
 
 
 class ErrorPopup(Popup):
@@ -134,7 +137,7 @@ class TakePhotoScreen(Screen):
             return True
 
     def process_photos(self, *args):
-        subprocess.call("sudo /home/wtb/Projects/rpi-photobooth/process_photos", shell=True)
+        subprocess.check_output("sudo /home/pi/share/rpi-photobooth/process_photos", stderr=subprocess.STDOUT, shell=True)
         Clock.schedule_once(self.goto_preview_screen)
 
 
@@ -143,9 +146,9 @@ class PreviewScreen(Screen):
     def on_pre_enter(self, *args):
         super(PreviewScreen, self).on_pre_enter(*args)
         self.ids.pic1.reload()
-#        self.ids.pic2.reload()
-#        self.ids.pic3.reload()
-#        self.ids.pic4.reload()
+        self.ids.pic2.reload()
+        self.ids.pic3.reload()
+        self.ids.pic4.reload()
 
     def goto_start(self):
         self.manager.current = 'start_screen'
