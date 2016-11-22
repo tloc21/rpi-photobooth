@@ -148,6 +148,7 @@ class PreviewScreen(Screen):
         self.popup = ErrorPopup()
         self.popup.title = 'PLEASE WAIT'
         self.popup.content.text = 'PRINTING'
+        self.popup.dismiss_time = 10
 
     def on_pre_enter(self, *args):
         super(PreviewScreen, self).on_pre_enter(*args)
