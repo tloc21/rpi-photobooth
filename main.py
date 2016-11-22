@@ -29,7 +29,7 @@ class StartScreen(Screen):
 
     def goto_photo_screen(self, *args):
         self.manager.current = 'take_photo_screen'
-		
+
     def preview_button_click(self, *args):
         self.manager.current = 'preview_screen'
 
@@ -143,6 +143,12 @@ class TakePhotoScreen(Screen):
 
 class PreviewScreen(Screen):
 
+    def __init__(self, **kwargs):
+        super(PreviewScreen, self).__init__(**kwargs)
+        self.popup = ErrorPopup()
+        self.popup.title = 'PLEASE WAIT'
+        self.popup.content.text = 'PRINTING'
+
     def on_pre_enter(self, *args):
         super(PreviewScreen, self).on_pre_enter(*args)
         self.ids.pic1.reload()
@@ -154,7 +160,8 @@ class PreviewScreen(Screen):
         self.manager.current = 'start_screen'
 
     def print_photos(self):
-        pass
+        self.popup.open()
+        subprocess.check_output("/home/pi/share/rpi-photobooth/print_photos", stderr=subprocess.STDOUT, shell=True)
 
 
 class PhotoBoothApp(App):
@@ -170,7 +177,7 @@ def monitor():
         proc.start()
         proc.join()
         #TODO: Change this back to !=
-        if proc.exitcode == 0:
+        if proc.exitcode != 0:
             print('something went wrong... terminating')
             exit(proc.exitcode)
 
