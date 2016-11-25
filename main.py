@@ -137,8 +137,10 @@ class TakePhotoScreen(Screen):
             return True
 
     def process_photos(self, *args):
-        subprocess.check_output("sudo /home/pi/share/rpi-photobooth/process_photos", stderr=subprocess.STDOUT, shell=True)
-        Clock.schedule_once(self.goto_preview_screen)
+        #subprocess.check_output("sudo /home/pi/share/rpi-photobooth/process_photos", stderr=subprocess.STDOUT, shell=True)
+        Clock.schedule_once(self.goto_preview_screen, -1)
+        subprocess.call("sudo /home/pi/share/rpi-photobooth/process_photos", stderr=subprocess.STDOUT, shell=True)
+        #Clock.schedule_once(self.goto_preview_screen)
 
 
 class PreviewScreen(Screen):
@@ -162,7 +164,7 @@ class PreviewScreen(Screen):
 
     def print_photos(self):
         self.popup.open()
-        subprocess.check_output("/home/pi/share/rpi-photobooth/print_photos", stderr=subprocess.STDOUT, shell=True)
+        subprocess.check_output("/home/pi/share/rpi-photobooth/print_photos", stderr=subprocess.STDOUT, shell=False)
 
 
 class PhotoBoothApp(App):

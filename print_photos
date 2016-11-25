@@ -1,1 +1,5 @@
-lp -d Canon_SELPHY_CP1200 /home/pi/montage.jpg
+montage /home/pi/photobooth_images/temp_montage.jpg /home/pi/share/ThanksgivingLabel.png -tile 2x1 -geometry +5+5 /home/pi/photobooth_images/montage.jpg
+cp /home/pi/photobooth_images/montage.jpg /media/usb/Photos/${ts}/montage_${ts}.jpg
+lp -d Canon_SELPHY_CP1200 /home/pi/photobooth_images/montage.jpg
+rm -f /home/pi/photobooth_images/montage.jpg
+
