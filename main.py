@@ -48,7 +48,22 @@ class ErrorPopup(Popup):
 
     def on_dismiss(self):
         self.dismiss_time = 3
+        
 
+class PrintPopup(Popup):
+    def __init__(self, **kwargs):
+        super(PrintPopup, self).__init__(**kwargs)
+        self.title = 'PLEASE WAIT'
+        self.title_align = 'center'
+        self.title_size = 30
+        self.content = Label(text = 'PRINTING', font_size = 100)
+        self.dismiss_time = 10
+
+    def on_open(self, **kwargs):
+        Clock.schedule_once(subprocess.call("/home/pi/share/rpi-photobooth/print_photos", stderr=subprocess.STDOUT, shell=True),1)
+
+    def on_dismiss(self):
+        self.dismiss_time = 3
 
 class TakePhotoScreen(Screen):
 
@@ -137,20 +152,18 @@ class TakePhotoScreen(Screen):
             return True
 
     def process_photos(self, *args):
-        #subprocess.check_output("sudo /home/pi/share/rpi-photobooth/process_photos", stderr=subprocess.STDOUT, shell=True)
-        Clock.schedule_once(self.goto_preview_screen, -1)
         subprocess.call("sudo /home/pi/share/rpi-photobooth/process_photos", stderr=subprocess.STDOUT, shell=True)
-        #Clock.schedule_once(self.goto_preview_screen)
+        Clock.schedule_once(self.goto_preview_screen)
 
 
 class PreviewScreen(Screen):
 
     def __init__(self, **kwargs):
         super(PreviewScreen, self).__init__(**kwargs)
-        self.popup = ErrorPopup()
-        self.popup.title = 'PLEASE WAIT'
-        self.popup.content.text = 'PRINTING'
-        self.popup.dismiss_time = 10
+        self.popup = PrintPopup()
+        #self.popup.title = 'PLEASE WAIT'
+        #self.popup.content.text = 'PRINTING'
+        #self.popup.dismiss_time = 15
 
     def on_pre_enter(self, *args):
         super(PreviewScreen, self).on_pre_enter(*args)
@@ -164,7 +177,7 @@ class PreviewScreen(Screen):
 
     def print_photos(self):
         self.popup.open()
-        subprocess.check_output("/home/pi/share/rpi-photobooth/print_photos", stderr=subprocess.STDOUT, shell=False)
+        
 
 
 class PhotoBoothApp(App):
