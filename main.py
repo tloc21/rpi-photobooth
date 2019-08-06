@@ -3,13 +3,14 @@
 import multiprocessing
 import os
 import subprocess
+import datetime
+from time import sleep
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.popup import Popup
 from kivy.properties import StringProperty, NumericProperty
-
 
 class PhotoBoothScreenManager(ScreenManager):
     pass
@@ -49,6 +50,19 @@ class ErrorPopup(Popup):
     def on_dismiss(self):
         self.dismiss_time = 3
         
+class ProcessingPopup(Popup):
+    def __init__(self, **kwargs):
+        super(ProcessingPopup, self).__init__(**kwargs)
+        self.title = 'PLEASE WAIT'
+        self.title_align = 'center'
+        self.title_size = 30
+        self.content = Label(text = 'PROCESSING', font_size = 100)
+        self.dismiss_time = 10
+    
+    def on_open(self, **kwargs):
+        Clock.schedule_once(self.dismiss, self.dismiss_time)
+        
+    
 
 class PrintPopup(Popup):
     def __init__(self, **kwargs):
@@ -57,13 +71,10 @@ class PrintPopup(Popup):
         self.title_align = 'center'
         self.title_size = 30
         self.content = Label(text = 'PRINTING', font_size = 100)
-        self.dismiss_time = 10
-
+        self.dismiss_time = 20
+        
     def on_open(self, **kwargs):
-        Clock.schedule_once(subprocess.call("/home/pi/share/rpi-photobooth/print_photos", stderr=subprocess.STDOUT, shell=True),1)
-
-    def on_dismiss(self):
-        self.dismiss_time = 3
+        Clock.schedule_once(self.dismiss, self.dismiss_time)
 
 class TakePhotoScreen(Screen):
 
@@ -78,6 +89,7 @@ class TakePhotoScreen(Screen):
         self.photo_error = False
         self.camera_error = False
         self.error_popup = ErrorPopup()
+        self.processing_popup = ProcessingPopup()
 
 
     def on_pre_enter(self, *args):
@@ -87,6 +99,9 @@ class TakePhotoScreen(Screen):
         self.take_photo_label_size = 100
         self.take_photo_label = 'GET READY'
         self.take_photo_title = ' '
+    
+    def get_ready(self, *args):
+        self.take_photo_label = 'GET READY'
 
     def goto_start_screen(self, *args):
         self.manager.current = 'start_screen'
@@ -106,7 +121,7 @@ class TakePhotoScreen(Screen):
                 else:
                     self.take_photo_title = 'Picture ' + str(self.iteration_counter) + ' of 4'
                 if self.timer_counter == 1:
-                    self.take_photo_label = 'POSE'
+                    self.take_photo_label = 'GET READY'
                 else:
                     self.take_photo_label = str(self.timer_counter)
                 Clock.schedule_once(self.take_photo_countdown, 1)
@@ -114,12 +129,13 @@ class TakePhotoScreen(Screen):
                 self.camera_error = self.snap_photo()
                 self.iteration_counter += 1
                 self.timer_counter = 4
-                Clock.schedule_once(self.take_photo_countdown, 1)
+                if self.iteration_counter <=4:
+                    Clock.schedule_once(self.take_photo_countdown, 1)
             if self.iteration_counter > 4:
-                self.error_popup.title = 'PLEASE WAIT'
-                self.error_popup.content.text = 'PROCESSING'
-                self.error_popup.open()
                 Clock.schedule_once(self.process_photos)
+                if self.iteration_counter ==5:
+                    cmdargs = ['/home/pi/share/rpi-photobooth/copyphotos.sh']
+                    subprocess.Popen(cmdargs,stderr=subprocess.STDOUT,shell=False)
         else:
             self.error_popup.content.text = 'CAMERA ERROR'
             self.error_popup.open()
@@ -128,10 +144,12 @@ class TakePhotoScreen(Screen):
             self.photo_error = False
 
     def snap_photo(self):
+
         try:
             gpout = subprocess.check_output("sudo gphoto2 --capture-image-and-download --filename \
                                             /home/pi/photobooth_images/temp_photo" + str(self.iteration_counter)
                                             + ".jpg --force-overwrite", stderr=subprocess.STDOUT, shell=True)
+            
             print gpout
             if 'ERROR' in gpout and self.photo_error:
                 return True
@@ -139,20 +157,24 @@ class TakePhotoScreen(Screen):
                 self.timer_counter = 5
                 self.iteration_counter -= 1
                 self.photo_error = True
+                Clock.schedule_once(self.show_photo_error,-1)
                 return False
             else:
                 self.photo_error = False
+                subprocess.call('sudo mogrify -resize 968x648 /home/pi/photobooth_images/temp_photo' + \
+                str(self.iteration_counter) + '.jpg',stderr=subprocess.STDOUT, shell=True)
                 return False
-
-
-
 
         except subprocess.CalledProcessError as e:
             print e.output
             return True
 
     def process_photos(self, *args):
-        subprocess.call("sudo /home/pi/share/rpi-photobooth/process_photos", stderr=subprocess.STDOUT, shell=True)
+        self.processing_popup.open()
+        print "PROCESS PHOTOS" + str(datetime.datetime.now())
+        #subprocess.call("sudo /home/pi/share/rpi-photobooth/process_photos", stderr=subprocess.STDOUT, shell=True)
+        cmdargs=['sudo','/home/pi/share/rpi-photobooth/process_photos']
+        subprocess.Popen(cmdargs,stderr=subprocess.STDOUT,shell=False)
         Clock.schedule_once(self.goto_preview_screen)
 
 
@@ -171,12 +193,18 @@ class PreviewScreen(Screen):
         self.ids.pic2.reload()
         self.ids.pic3.reload()
         self.ids.pic4.reload()
-
-    def goto_start(self):
+    
+    def on_enter(self,*args):
+        Clock.schedule_once(self.goto_start, 120)
+        
+    def goto_start(self, *args):
         self.manager.current = 'start_screen'
 
     def print_photos(self):
         self.popup.open()
+        #subprocess.call("/home/pi/share/rpi-photobooth/print_photos", stderr=subprocess.STDOUT, shell=True)
+        cmdargs = ['sudo','/home/pi/share/rpi-photobooth/print_photos']
+        subprocess.Popen(cmdargs, stderr=subprocess.STDOUT, shell=False)
         
 
 

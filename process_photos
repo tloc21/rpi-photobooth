@@ -1,13 +1,6 @@
 #!/bin/bash
 
-tsdate=$(date +%m-%d-%y)
-tstime=$(date +%H%M%S)
 sudo rm -f /home/pi/photobooth_images/temp_montage.jpg
-sudo rm -f /home/pi/photobooth_images/montage.jpg
-sudo mkdir -p /media/usb/Photos/${tsdate}/${tstime}
-mogrify -resize 968x648 /home/pi/photobooth_images/*.jpg
-cp /home/pi/photobooth_images/* /media/usb/Photos/${tsdate}/${tstime}
 montage /home/pi/photobooth_images/*.jpg -tile 2x2 -geometry +10+10 /home/pi/photobooth_images/temp_montage.jpg
 echo ${SECONDS}
-#montage /home/pi/photobooth_images/temp_montage.jpg /home/pi/text3336.png -tile 1x2 -geometry +5+5 /home/pi/montage.jpg
 
